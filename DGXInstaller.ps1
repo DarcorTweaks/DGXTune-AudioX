@@ -6,11 +6,12 @@ Clear-Host
 function Banner {
 
 Write-Host ""
-Write-Host "===============================================" -ForegroundColor DarkYellow
-Write-Host "               DGX Tune AudioX" -ForegroundColor Cyan
-Write-Host "        Competitive Audio Installer" -ForegroundColor Gray
-Write-Host "               DarcorTweaks" -ForegroundColor DarkGray
-Write-Host "===============================================" -ForegroundColor DarkYellow
+Write-Host "====================================================" -ForegroundColor DarkGray
+Write-Host "                 DGX TUNE AUDIOX" -ForegroundColor Cyan
+Write-Host "            Competitive Audio Installer" -ForegroundColor Gray
+Write-Host "----------------------------------------------------" -ForegroundColor DarkGray
+Write-Host "               Developed by DarcorTweaks" -ForegroundColor DarkGray
+Write-Host "====================================================" -ForegroundColor DarkGray
 Write-Host ""
 
 }
@@ -71,8 +72,6 @@ powershell -ExecutionPolicy Bypass -File "$base\core\audio_cleanup.ps1"
 
 powershell -ExecutionPolicy Bypass -File "$base\core\audio_engine.ps1"
 
-powershell -ExecutionPolicy Bypass -File "$base\core\device_rename.ps1"
-
 Write-Host ""
 Write-Host "DGX Installation Completed Successfully." -ForegroundColor Green
 Write-Host ""
@@ -81,12 +80,12 @@ Write-Host ""
 
 function Menu {
 
-Write-Host "Select Option"
+Write-Host "Select Option" -ForegroundColor Yellow
 Write-Host ""
 
-Write-Host "[1] Full Installation"
+Write-Host "[1] Install DGX Audio Engine"
 Write-Host "[2] Audio Diagnostics"
-Write-Host "[3] Exit"
+Write-Host "[3] Exit Installer"
 Write-Host ""
 
 }
@@ -104,6 +103,7 @@ $choice = Read-Host "Option"
 switch ($choice){
 
 "1" { FullInstall }
+
 "2" { Diagnostics }
 
 }

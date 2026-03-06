@@ -5,15 +5,15 @@ $temp = "$env:TEMP\eapo.exe"
 
 $url = "https://sourceforge.net/projects/equalizerapo/files/latest/download"
 
-try{
+try {
 
 Invoke-WebRequest $url -OutFile $temp
 
 Start-Process $temp -ArgumentList "/S" -Wait
 
-Write-Host "Equalizer APO installation finished." -ForegroundColor Green
+Write-Host "Equalizer APO installed successfully." -ForegroundColor Green
 
-}catch{
+} catch {
 
 Write-Host "Failed to download Equalizer APO." -ForegroundColor Red
 

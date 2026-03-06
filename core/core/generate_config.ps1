@@ -1,29 +1,17 @@
 Write-Host ""
-Write-Host "Generating Equalizer APO configuration..." -ForegroundColor Cyan
-Write-Host ""
+Write-Host "Installing HRIR..." -ForegroundColor Cyan
 
-$configPath = "C:\Program Files\EqualizerAPO\config\config.txt"
+$src = "$PSScriptRoot\..\hrir\EAC_Default.wav"
+$dst = "C:\Program Files\EqualizerAPO\config\HeSuVi\hrir\EAC_Default.wav"
 
-$content = @"
+if(Test-Path $src){
 
-# DGX Tune AudioX Configuration
+Copy-Item $src $dst -Force
 
-# PRE HESUVI
-Include: DGXTune-AudioX\library\WARZONE\S0\WARZONE_pre.txt
+Write-Host "HRIR installed successfully." -ForegroundColor Green
 
-# HESUVI SURROUND
-Include: HeSuVi\hesuvi.txt
+}else{
 
-# HEADPHONE EQ
-# Replace with your headset EQ file
-# Example: DT990_WARZONE_S0.txt
+Write-Host "HRIR file missing." -ForegroundColor Red
 
-# POST HESUVI
-Include: DGXTune-AudioX\library\WARZONE\S0\WARZONE_post.txt
-
-"@
-
-Set-Content -Path $configPath -Value $content
-
-Write-Host "config.txt created successfully." -ForegroundColor Green
-Write-Host ""
+}

@@ -1,7 +1,7 @@
 Write-Host ""
 Write-Host "Installing Voicemeeter..." -ForegroundColor Cyan
 
-$installer = "$PSScriptRoot\..\installers\VoicemeeterSetup.exe"
+$installer = "$PSScriptRoot\..\installers\voicemeetersetup.exe"
 
 if(Test-Path $installer){
 

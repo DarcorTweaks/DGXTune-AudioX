@@ -1,16 +1,20 @@
 Write-Host ""
 Write-Host "Installing Equalizer APO..." -ForegroundColor Cyan
 
-$tools = "$env:TEMP\DGXTools"
-
-New-Item -ItemType Directory $tools -Force | Out-Null
+$temp = "$env:TEMP\eapo.exe"
 
 $url = "https://sourceforge.net/projects/equalizerapo/files/latest/download"
 
-$file = "$tools\eapo.exe"
+try{
 
-Invoke-WebRequest $url -OutFile $file
+Invoke-WebRequest $url -OutFile $temp
 
-Start-Process $file -ArgumentList "/S" -Wait
+Start-Process $temp -ArgumentList "/S" -Wait
 
 Write-Host "Equalizer APO installation finished." -ForegroundColor Green
+
+}catch{
+
+Write-Host "Failed to download Equalizer APO." -ForegroundColor Red
+
+}

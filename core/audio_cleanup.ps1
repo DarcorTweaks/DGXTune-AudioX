@@ -1,8 +1,10 @@
 Write-Host ""
-Write-Host "Running DGX audio cleanup..." -ForegroundColor Yellow
+Write-Host "=========================================" -ForegroundColor DarkYellow
+Write-Host "         DGX Fresh Audio Cleanup" -ForegroundColor Cyan
+Write-Host "=========================================" -ForegroundColor DarkYellow
 Write-Host ""
 
-$programs = @(
+$apps = @(
 "Voicemeeter",
 "Equalizer APO",
 "HeSuVi",
@@ -10,20 +12,20 @@ $programs = @(
 "ReaPlugs"
 )
 
-foreach ($program in $programs) {
+foreach ($app in $apps) {
 
-Write-Host "Checking for $program..."
+Write-Host "Checking for $app..."
 
-$found = Get-WmiObject Win32_Product | Where-Object { $_.Name -like "*$program*" }
+$installed = Get-WmiObject Win32_Product | Where-Object {$_.Name -like "*$app*"}
 
-if ($found) {
+if ($installed) {
 
-Write-Host "Removing $program..." -ForegroundColor Red
-$found.Uninstall()
+Write-Host "Removing $app..." -ForegroundColor Yellow
+$installed.Uninstall()
 
 } else {
 
-Write-Host "$program not found."
+Write-Host "$app not found."
 
 }
 

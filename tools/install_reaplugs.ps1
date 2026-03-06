@@ -5,15 +5,15 @@ $temp = "$env:TEMP\reaplugs.exe"
 
 $url = "https://www.reaper.fm/files/2.x/reaplugs236-install.exe"
 
-try{
+try {
 
 Invoke-WebRequest $url -OutFile $temp
 
 Start-Process $temp -Wait
 
-Write-Host "ReaPlugs installation finished." -ForegroundColor Green
+Write-Host "ReaPlugs installed successfully." -ForegroundColor Green
 
-}catch{
+} catch {
 
 Write-Host "Failed to install ReaPlugs." -ForegroundColor Red
 

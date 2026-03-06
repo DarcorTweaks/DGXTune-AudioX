@@ -1,16 +1,20 @@
 Write-Host ""
 Write-Host "Installing HeSuVi..." -ForegroundColor Cyan
 
-$tools = "$env:TEMP\DGXTools"
-
-New-Item -ItemType Directory $tools -Force | Out-Null
+$temp = "$env:TEMP\hesuvi.exe"
 
 $url = "https://sourceforge.net/projects/hesuvi/files/latest/download"
 
-$file = "$tools\hesuvi.exe"
+try{
 
-Invoke-WebRequest $url -OutFile $file
+Invoke-WebRequest $url -OutFile $temp
 
-Start-Process $file -ArgumentList "/S" -Wait
+Start-Process $temp -ArgumentList "/S" -Wait
 
 Write-Host "HeSuVi installation finished." -ForegroundColor Green
+
+}catch{
+
+Write-Host "Failed to install HeSuVi." -ForegroundColor Red
+
+}

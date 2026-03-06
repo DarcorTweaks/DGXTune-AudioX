@@ -1,16 +1,16 @@
 Write-Host ""
-Write-Host "Installing VB Cable..." -ForegroundColor Cyan
+Write-Host "Installing Hi-Fi Cable..." -ForegroundColor Cyan
 
-$installer = "$PSScriptRoot\..\installers\VBCABLE_Setup.exe"
+$installer = "$PSScriptRoot\..\installers\HiFiCableAsioBridgeSetup.exe"
 
 if(Test-Path $installer){
 
 Start-Process $installer -Verb RunAs -Wait
 
-Write-Host "VB Cable installation finished." -ForegroundColor Green
+Write-Host "Hi-Fi Cable installation finished." -ForegroundColor Green
 
 }else{
 
-Write-Host "VB Cable installer not found." -ForegroundColor Red
+Write-Host "Hi-Fi Cable installer not found." -ForegroundColor Red
 
 }

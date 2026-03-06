@@ -1,16 +1,22 @@
 Write-Host ""
 Write-Host "Installing Peace Equalizer..." -ForegroundColor Cyan
 
-$tools = "$env:TEMP\DGXTools"
-
-New-Item -ItemType Directory $tools -Force | Out-Null
+$temp = "$env:TEMP\peace.zip"
 
 $url = "https://sourceforge.net/projects/peace-equalizer-apo-extension/files/latest/download"
 
-$file = "$tools\peace.exe"
+try{
 
-Invoke-WebRequest $url -OutFile $file
+Invoke-WebRequest $url -OutFile $temp
 
-Start-Process $file -Wait
+Expand-Archive $temp "$env:TEMP\peace" -Force
+
+Start-Process "$env:TEMP\peace\Peace Setup.exe" -Wait
 
 Write-Host "Peace installation finished." -ForegroundColor Green
+
+}catch{
+
+Write-Host "Failed to install Peace." -ForegroundColor Red
+
+}

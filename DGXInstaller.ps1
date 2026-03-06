@@ -1,3 +1,6 @@
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$PSDefaultParameterValues['Out-File:Encoding'] = 'utf8'
+
 Clear-Host
 
 Write-Host ""
@@ -21,7 +24,7 @@ $choice = Read-Host "Selecciona una opción"
 if ($choice -eq "1") {
 
 Write-Host ""
-Write-Host "Iniciando instalación de herramientas de audio..." -ForegroundColor Green
+Write-Host "Iniciando instalación del sistema de audio..." -ForegroundColor Green
 Start-Sleep 2
 
 }

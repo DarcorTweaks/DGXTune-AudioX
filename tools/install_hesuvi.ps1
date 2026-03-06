@@ -1,20 +1,16 @@
 Write-Host ""
 Write-Host "Installing HeSuVi..." -ForegroundColor Cyan
 
-$temp = "$env:TEMP\hesuvi.exe"
+$installer = "$PSScriptRoot\..\installers\HeSuVi_2.0.0.1.exe"
 
-$url = "https://sourceforge.net/projects/hesuvi/files/latest/download"
+if(Test-Path $installer){
 
-try {
+Start-Process $installer -Verb RunAs -Wait
 
-Invoke-WebRequest $url -OutFile $temp
+Write-Host "HeSuVi installation finished." -ForegroundColor Green
 
-Start-Process $temp -ArgumentList "/S" -Wait
+}else{
 
-Write-Host "HeSuVi installed successfully." -ForegroundColor Green
-
-} catch {
-
-Write-Host "Failed to install HeSuVi." -ForegroundColor Red
+Write-Host "HeSuVi installer not found." -ForegroundColor Red
 
 }

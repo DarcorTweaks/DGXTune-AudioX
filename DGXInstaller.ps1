@@ -1,15 +1,14 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-
 Clear-Host
 
 function Banner {
 
 Write-Host ""
-Write-Host "╔══════════════════════════════════════════════╗" -ForegroundColor DarkYellow
-Write-Host "║               DGX Tune AudioX                ║" -ForegroundColor Cyan
-Write-Host "║         Competitive Audio Installer          ║" -ForegroundColor Gray
-Write-Host "║               DarcorTweaks                   ║" -ForegroundColor DarkGray
-Write-Host "╚══════════════════════════════════════════════╝" -ForegroundColor DarkYellow
+Write-Host "╔══════════════════════════════════════════════════╗" -ForegroundColor DarkYellow
+Write-Host "║                DGX Tune AudioX                   ║" -ForegroundColor Cyan
+Write-Host "║            Competitive Audio Installer           ║" -ForegroundColor Gray
+Write-Host "║                DarcorTweaks                      ║" -ForegroundColor DarkGray
+Write-Host "╚══════════════════════════════════════════════════╝" -ForegroundColor DarkYellow
 Write-Host ""
 
 }
@@ -33,49 +32,51 @@ if ($admin) {
 Write-Host "Admin: OK" -ForegroundColor Green
 } else {
 Write-Host "Admin: Required" -ForegroundColor Red
+Write-Host "Please run PowerShell as Administrator."
+Write-Host ""
+Pause
+exit
 }
 
 Write-Host ""
 
 }
 
-function Menu {
+function ProgressBar($task){
 
-Write-Host "What would you like to do?" -ForegroundColor White
-Write-Host ""
+for ($i=0; $i -le 100; $i+=10){
 
-Write-Host "[1] Full Installation"
-Write-Host "[2] Repair Audio Engine"
-Write-Host "[3] Audio Diagnostics"
-Write-Host "[4] Exit"
-Write-Host ""
+Write-Progress -Activity "$task" -Status "$i% Complete" -PercentComplete $i
+Start-Sleep -Milliseconds 200
 
 }
 
-function InstallEngine {
+}
 
-Write-Host ""
-Write-Host "Installing Audio Tools..." -ForegroundColor Cyan
-Write-Host ""
+function InstallAudio {
 
 $tools="$env:TEMP\DGXTools"
 
 New-Item -ItemType Directory $tools -Force | Out-Null
 
-Write-Host "[1/5] Installing VB Cable..."
-Start-Sleep 1
+Write-Host ""
+Write-Host "Installing Audio Engine..." -ForegroundColor Cyan
+Write-Host ""
 
-Write-Host "[2/5] Installing Voicemeeter..."
-Start-Sleep 1
+Write-Host "[1/5] VB Cable"
+ProgressBar "Installing VB Cable"
 
-Write-Host "[3/5] Installing Equalizer APO..."
-Start-Sleep 1
+Write-Host "[2/5] Voicemeeter"
+ProgressBar "Installing Voicemeeter"
 
-Write-Host "[4/5] Installing HeSuVi..."
-Start-Sleep 1
+Write-Host "[3/5] Equalizer APO"
+ProgressBar "Installing Equalizer APO"
 
-Write-Host "[5/5] Installing ReaPlugs..."
-Start-Sleep 1
+Write-Host "[4/5] HeSuVi"
+ProgressBar "Installing HeSuVi"
+
+Write-Host "[5/5] ReaPlugs"
+ProgressBar "Installing ReaPlugs"
 
 Write-Host ""
 Write-Host "Installation Complete." -ForegroundColor Green
@@ -95,20 +96,32 @@ Write-Host ""
 
 }
 
+function Menu {
+
+Write-Host "What would you like to do?"
+Write-Host ""
+
+Write-Host "[1] Full Installation"
+Write-Host "[2] Repair Audio Engine"
+Write-Host "[3] Audio Diagnostics"
+Write-Host "[4] Exit"
+Write-Host ""
+
+}
+
 do {
 
 Clear-Host
-
 Banner
 SystemCheck
 Menu
 
 $choice = Read-Host "Select option"
 
-switch ($choice) {
+switch ($choice){
 
-"1" { InstallEngine }
-"2" { InstallEngine }
+"1" { InstallAudio }
+"2" { InstallAudio }
 "3" { Diagnostics }
 
 }

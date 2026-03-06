@@ -1,16 +1,20 @@
 Write-Host ""
 Write-Host "Installing ReaPlugs..." -ForegroundColor Cyan
 
-$tools = "$env:TEMP\DGXTools"
-
-New-Item -ItemType Directory $tools -Force | Out-Null
+$temp = "$env:TEMP\reaplugs.exe"
 
 $url = "https://www.reaper.fm/files/2.x/reaplugs236-install.exe"
 
-$file = "$tools\reaplugs.exe"
+try{
 
-Invoke-WebRequest $url -OutFile $file
+Invoke-WebRequest $url -OutFile $temp
 
-Start-Process $file -Wait
+Start-Process $temp -Wait
 
 Write-Host "ReaPlugs installation finished." -ForegroundColor Green
+
+}catch{
+
+Write-Host "Failed to install ReaPlugs." -ForegroundColor Red
+
+}

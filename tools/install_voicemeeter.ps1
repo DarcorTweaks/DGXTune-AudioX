@@ -1,20 +1,16 @@
 Write-Host ""
 Write-Host "Installing Voicemeeter..." -ForegroundColor Cyan
 
-$temp = "$env:TEMP\voicemeeter.exe"
+$installer = "$PSScriptRoot\..\installers\VoicemeeterSetup.exe"
 
-$url = "https://download.vb-audio.com/Download_CABLE/VoicemeeterSetup.exe"
+if(Test-Path $installer){
 
-try {
+Start-Process $installer -Verb RunAs -Wait
 
-Start-BitsTransfer -Source $url -Destination $temp
+Write-Host "Voicemeeter installation finished." -ForegroundColor Green
 
-Start-Process $temp -Wait
+}else{
 
-Write-Host "Voicemeeter installed successfully." -ForegroundColor Green
-
-} catch {
-
-Write-Host "Failed to download Voicemeeter." -ForegroundColor Red
+Write-Host "Voicemeeter installer not found." -ForegroundColor Red
 
 }

@@ -1,16 +1,12 @@
 Write-Host ""
 Write-Host "Installing Peace Equalizer..." -ForegroundColor Cyan
 
-$installer = "$PSScriptRoot\..\installers\PeaceSetup.exe"
+$temp = "$env:TEMP\PeaceSetup.exe"
 
-if(Test-Path $installer){
+$url = "https://sourceforge.net/projects/peace-equalizer-apo-extension/files/latest/download"
 
-Start-Process $installer -Verb RunAs -Wait
+Invoke-WebRequest $url -OutFile $temp
+
+Start-Process $temp -Wait
 
 Write-Host "Peace installation finished." -ForegroundColor Green
-
-}else{
-
-Write-Host "Peace installer not found." -ForegroundColor Red
-
-}

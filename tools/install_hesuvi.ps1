@@ -5,15 +5,15 @@ $temp = "$env:TEMP\hesuvi.exe"
 
 $url = "https://sourceforge.net/projects/hesuvi/files/latest/download"
 
-try{
+try {
 
 Invoke-WebRequest $url -OutFile $temp
 
 Start-Process $temp -ArgumentList "/S" -Wait
 
-Write-Host "HeSuVi installation finished." -ForegroundColor Green
+Write-Host "HeSuVi installed successfully." -ForegroundColor Green
 
-}catch{
+} catch {
 
 Write-Host "Failed to install HeSuVi." -ForegroundColor Red
 

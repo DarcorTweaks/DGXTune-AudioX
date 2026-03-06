@@ -16,22 +16,9 @@ Write-Host ""
 
 }
 
-function Menu {
-
-Write-Host "Select Option" -ForegroundColor Yellow
-Write-Host ""
-
-Write-Host "[1] Install DGX Audio Engine"
-Write-Host "[2] Select Game Preset"
-Write-Host "[3] Audio Diagnostics"
-Write-Host "[4] Exit Installer"
-Write-Host ""
-
-}
+$base = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 function InstallEngine {
-
-$base = "$PSScriptRoot"
 
 powershell -ExecutionPolicy Bypass -File "$base\core\audio_cleanup.ps1"
 powershell -ExecutionPolicy Bypass -File "$base\core\audio_engine.ps1"
@@ -39,8 +26,6 @@ powershell -ExecutionPolicy Bypass -File "$base\core\audio_engine.ps1"
 }
 
 function SelectGame {
-
-$base = "$PSScriptRoot"
 
 powershell -ExecutionPolicy Bypass -File "$base\core\game_selector.ps1"
 
@@ -54,6 +39,19 @@ Write-Host ""
 
 Get-PnpDevice -Class AudioEndpoint
 
+Write-Host ""
+
+}
+
+function Menu {
+
+Write-Host "Select Option" -ForegroundColor Yellow
+Write-Host ""
+
+Write-Host "[1] Install DGX Audio Engine"
+Write-Host "[2] Select Game Preset"
+Write-Host "[3] Audio Diagnostics"
+Write-Host "[4] Exit Installer"
 Write-Host ""
 
 }

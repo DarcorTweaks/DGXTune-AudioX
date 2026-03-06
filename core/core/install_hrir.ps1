@@ -1,18 +1,17 @@
 Write-Host ""
-Write-Host "Installing DGX HRIR..." -ForegroundColor Cyan
-Write-Host ""
+Write-Host "Installing HRIR..." -ForegroundColor Cyan
 
-$source = "$PSScriptRoot\..\hrir\EAC_Default.wav"
+$src = "$PSScriptRoot\..\hrir\EAC_Default.wav"
+$dst = "C:\Program Files\EqualizerAPO\config\HeSuVi\hrir\EAC_Default.wav"
 
-$destination = "C:\Program Files\EqualizerAPO\config\HeSuVi\hrir"
+if(Test-Path $src){
 
-if (!(Test-Path $destination)) {
-
-New-Item -ItemType Directory -Path $destination -Force | Out-Null
-
-}
-
-Copy-Item $source "$destination\EAC_Default.wav" -Force
+Copy-Item $src $dst -Force
 
 Write-Host "HRIR installed successfully." -ForegroundColor Green
-Write-Host ""
+
+}else{
+
+Write-Host "HRIR file missing." -ForegroundColor Red
+
+}

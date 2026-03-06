@@ -1,20 +1,16 @@
 Write-Host ""
 Write-Host "Installing Equalizer APO..." -ForegroundColor Cyan
 
-$temp = "$env:TEMP\eapo.exe"
+$installer = "$PSScriptRoot\..\installers\EqualizerAPO64-1.4.exe"
 
-$url = "https://sourceforge.net/projects/equalizerapo/files/latest/download"
+if(Test-Path $installer){
 
-try {
+Start-Process $installer -Verb RunAs -Wait
 
-Invoke-WebRequest $url -OutFile $temp
+Write-Host "Equalizer APO installation finished." -ForegroundColor Green
 
-Start-Process $temp -ArgumentList "/S" -Wait
+}else{
 
-Write-Host "Equalizer APO installed successfully." -ForegroundColor Green
-
-} catch {
-
-Write-Host "Failed to download Equalizer APO." -ForegroundColor Red
+Write-Host "Equalizer APO installer not found." -ForegroundColor Red
 
 }

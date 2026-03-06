@@ -6,16 +6,11 @@ Clear-Host
 function Banner {
 
 Write-Host ""
-Write-Host "██████╗  ██████╗ ██╗  ██╗" -ForegroundColor Cyan
-Write-Host "██╔══██╗██╔════╝ ╚██╗██╔╝" -ForegroundColor Cyan
-Write-Host "██║  ██║██║  ███╗ ╚███╔╝ " -ForegroundColor Cyan
-Write-Host "██║  ██║██║   ██║ ██╔██╗ " -ForegroundColor Cyan
-Write-Host "██████╔╝╚██████╔╝██╔╝ ██╗" -ForegroundColor Cyan
-Write-Host "╚═════╝  ╚═════╝ ╚═╝  ╚═╝" -ForegroundColor Cyan
-Write-Host ""
-
-Write-Host "DGX Tune AudioX" -ForegroundColor Yellow
-Write-Host "DarcorTweaks Competitive Audio Suite" -ForegroundColor Gray
+Write-Host "===============================================" -ForegroundColor DarkYellow
+Write-Host "               DGX Tune AudioX" -ForegroundColor Cyan
+Write-Host "        Competitive Audio Installer" -ForegroundColor Gray
+Write-Host "               DarcorTweaks" -ForegroundColor DarkGray
+Write-Host "===============================================" -ForegroundColor DarkYellow
 Write-Host ""
 
 }
@@ -52,18 +47,34 @@ Write-Host ""
 
 }
 
-function LoadingAnimation {
+function Diagnostics {
 
-Write-Host "Initializing DGX Audio Engine..." -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Detected Audio Devices:" -ForegroundColor Cyan
+Write-Host ""
 
-for ($i=0; $i -lt 5; $i++){
+Get-PnpDevice -Class AudioEndpoint
 
-Write-Host "." -NoNewline
-Start-Sleep 400
+Write-Host ""
 
 }
 
+function FullInstall {
+
 Write-Host ""
+Write-Host "Starting DGX Full Installation..." -ForegroundColor Cyan
+Write-Host ""
+
+$base = "$PSScriptRoot"
+
+powershell -ExecutionPolicy Bypass -File "$base\core\audio_cleanup.ps1"
+
+powershell -ExecutionPolicy Bypass -File "$base\core\audio_engine.ps1"
+
+powershell -ExecutionPolicy Bypass -File "$base\core\device_rename.ps1"
+
+Write-Host ""
+Write-Host "DGX Installation Completed Successfully." -ForegroundColor Green
 Write-Host ""
 
 }
@@ -74,58 +85,8 @@ Write-Host "Select Option"
 Write-Host ""
 
 Write-Host "[1] Full Installation"
-Write-Host "[2] Repair Audio Engine"
-Write-Host "[3] Audio Diagnostics"
-Write-Host "[4] Exit"
-Write-Host ""
-
-}
-
-function InstallEngine {
-
-Write-Host ""
-Write-Host "Installing Audio Components..." -ForegroundColor Cyan
-Write-Host ""
-
-$steps=@(
-"VB Cable",
-"Voicemeeter",
-"Equalizer APO",
-"HeSuVi",
-"ReaPlugs"
-)
-
-$step=1
-
-foreach ($s in $steps){
-
-Write-Host "[$step/5] Installing $s"
-
-for ($i=0;$i -le 100;$i+=20){
-
-Write-Progress -Activity "Installing $s" -Status "$i% Complete" -PercentComplete $i
-Start-Sleep 200
-
-}
-
-$step++
-
-}
-
-Write-Host ""
-Write-Host "Installation Completed Successfully" -ForegroundColor Green
-Write-Host ""
-
-}
-
-function Diagnostics {
-
-Write-Host ""
-Write-Host "Detected Audio Devices" -ForegroundColor Cyan
-Write-Host ""
-
-Get-PnpDevice -Class AudioEndpoint
-
+Write-Host "[2] Audio Diagnostics"
+Write-Host "[3] Exit"
 Write-Host ""
 
 }
@@ -136,19 +97,17 @@ Clear-Host
 
 Banner
 SystemCheck
-LoadingAnimation
 Menu
 
 $choice = Read-Host "Option"
 
 switch ($choice){
 
-"1" { InstallEngine }
-"2" { InstallEngine }
-"3" { Diagnostics }
+"1" { FullInstall }
+"2" { Diagnostics }
 
 }
 
 Read-Host "Press ENTER to continue"
 
-} while ($choice -ne "4")
+} while ($choice -ne "3")

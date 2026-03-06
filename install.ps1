@@ -1,25 +1,31 @@
 Clear-Host
 
 Write-Host ""
-Write-Host "DGX Tune AudioX Launcher" -ForegroundColor Cyan
-Write-Host "DarcorTweaks Competitive Audio Suite" -ForegroundColor DarkGray
+Write-Host "DGX Tune AudioX Installer" -ForegroundColor Cyan
+Write-Host "Downloading components..." -ForegroundColor Gray
 Write-Host ""
 
-$temp = "$env:TEMP\DGXTune"
-$installer = "$temp\DGXInstaller.ps1"
+$repo = "https://github.com/DarcorTweaks/DGXTune-AudioX/archive/refs/heads/main.zip"
 
-if (!(Test-Path $temp)) {
-    New-Item -ItemType Directory -Path $temp | Out-Null
+$temp = "$env:TEMP\DGXTune"
+$zip = "$temp\DGXTune.zip"
+
+if(Test-Path $temp){
+
+Remove-Item $temp -Recurse -Force
+
 }
 
-$url = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/DGXInstaller.ps1"
+New-Item -ItemType Directory $temp | Out-Null
 
-Write-Host "Descargando instalador..." -ForegroundColor Yellow
+Invoke-WebRequest $repo -OutFile $zip
 
-Invoke-WebRequest $url -OutFile $installer
+Expand-Archive $zip $temp -Force
 
-Write-Host "Iniciando instalador..." -ForegroundColor Green
+$folder = Get-ChildItem $temp | Where-Object {$_.Name -like "DGXTune-AudioX*"} | Select-Object -First 1
 
-Start-Sleep 2
+$path = "$temp\$($folder.Name)"
 
-Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `"$installer`"" -Verb RunAs
+Write-Host "Starting installer..." -ForegroundColor Green
+
+Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$path\DGXInstaller.ps1`""

@@ -1,161 +1,126 @@
 Clear-Host
 
-function Show-Banner {
+function Banner {
 
 Write-Host ""
-Write-Host "==============================================" -ForegroundColor DarkGray
-Write-Host "               DGX Tune AudioX" -ForegroundColor Cyan
-Write-Host "        Competitive Audio Engine Installer" -ForegroundColor Gray
-Write-Host "                DarcorTweaks" -ForegroundColor DarkGray
-Write-Host "==============================================" -ForegroundColor DarkGray
+Write-Host "=================================================" -ForegroundColor DarkGray
+Write-Host "                DGX Tune AudioX" -ForegroundColor Cyan
+Write-Host "           Competitive Audio Installer" -ForegroundColor Gray
+Write-Host "                 DarcorTweaks" -ForegroundColor DarkGray
+Write-Host "=================================================" -ForegroundColor DarkGray
 Write-Host ""
 
 }
 
-function Pause-Continue {
+function CreateWorkspace {
 
-Write-Host ""
-Read-Host "Press ENTER to continue"
+$root = "$env:USERPROFILE\DGXTune"
+
+if (!(Test-Path $root)) {
+New-Item -ItemType Directory -Path $root | Out-Null
+}
+
+New-Item -ItemType Directory "$root\library" -Force | Out-Null
+New-Item -ItemType Directory "$root\hrir" -Force | Out-Null
+New-Item -ItemType Directory "$root\tools" -Force | Out-Null
+New-Item -ItemType Directory "$root\presets" -Force | Out-Null
+
+Write-Host "[DGX] Workspace created: $root" -ForegroundColor Green
 
 }
 
-function FreshStart {
+function InstallAudioEngine {
 
-Write-Host ""
-Write-Host "[DGX] Removing previous audio tools..." -ForegroundColor Yellow
+$tools="$env:TEMP\DGXTools"
 
-Get-WmiObject Win32_Product |
-Where-Object {$_.Name -like "*Voicemeeter*"} |
-ForEach-Object {$_.Uninstall()}
+New-Item -ItemType Directory $tools -Force | Out-Null
 
-Get-WmiObject Win32_Product |
-Where-Object {$_.Name -like "*Equalizer APO*"} |
-ForEach-Object {$_.Uninstall()}
-
-Get-WmiObject Win32_Product |
-Where-Object {$_.Name -like "*HeSuVi*"} |
-ForEach-Object {$_.Uninstall()}
-
-Write-Host "[DGX] Cleanup completed." -ForegroundColor Green
-
-Pause-Continue
-
-}
-
-function InstallEngine {
-
-$tools = "$env:TEMP\DGXTools"
-
-if (!(Test-Path $tools)) {
-
-New-Item -ItemType Directory -Path $tools | Out-Null
-
-}
-
-Write-Host ""
-Write-Host "[1/5] Installing VB-Audio Cable..." -ForegroundColor Cyan
+Write-Host "[1/5] Installing VB Cable" -ForegroundColor Cyan
 
 Invoke-WebRequest "https://download.vb-audio.com/Download_CABLE/VBCABLE_Driver_Pack43.zip" -OutFile "$tools\cable.zip"
 
 Expand-Archive "$tools\cable.zip" "$tools\cable" -Force
 
-Start-Process "$tools\cable\VBCABLE_Setup_x64.exe" -Verb RunAs -Wait
+Start-Process "$tools\cable\VBCABLE_Setup_x64.exe" -Wait
 
-
-Write-Host "[2/5] Installing Voicemeeter..." -ForegroundColor Cyan
+Write-Host "[2/5] Installing Voicemeeter" -ForegroundColor Cyan
 
 Invoke-WebRequest "https://download.vb-audio.com/Download_CABLE/VoicemeeterSetup.exe" -OutFile "$tools\voicemeeter.exe"
 
 Start-Process "$tools\voicemeeter.exe" -Wait
 
-
-Write-Host "[3/5] Installing Equalizer APO..." -ForegroundColor Cyan
+Write-Host "[3/5] Installing Equalizer APO" -ForegroundColor Cyan
 
 Invoke-WebRequest "https://sourceforge.net/projects/equalizerapo/files/latest/download" -OutFile "$tools\eapo.exe"
 
 Start-Process "$tools\eapo.exe" -ArgumentList "/S" -Wait
 
-
-Write-Host "[4/5] Installing HeSuVi..." -ForegroundColor Cyan
+Write-Host "[4/5] Installing HeSuVi" -ForegroundColor Cyan
 
 Invoke-WebRequest "https://sourceforge.net/projects/hesuvi/files/latest/download" -OutFile "$tools\hesuvi.exe"
 
 Start-Process "$tools\hesuvi.exe" -ArgumentList "/S" -Wait
 
-
-Write-Host "[5/5] Installing ReaPlugs..." -ForegroundColor Cyan
+Write-Host "[5/5] Installing ReaPlugs" -ForegroundColor Cyan
 
 Invoke-WebRequest "https://www.reaper.fm/files/2.x/reaplugs236-install.exe" -OutFile "$tools\reaplugs.exe"
 
 Start-Process "$tools\reaplugs.exe" -Wait
 
-
-Write-Host ""
-Write-Host "[DGX] Audio Engine installed successfully." -ForegroundColor Green
-
-Pause-Continue
+Write-Host "[DGX] Audio engine installed." -ForegroundColor Green
 
 }
 
-function InstallLEQ {
+function InstallHRIR {
 
-$tools = "$env:TEMP\DGXTools"
+$dest="C:\Program Files\EqualizerAPO\config\HeSuVi\hrir"
 
-Write-Host ""
-Write-Host "[DGX] Downloading LEQ Control Panel..." -ForegroundColor Cyan
+New-Item -ItemType Directory $dest -Force | Out-Null
 
-git clone https://github.com/ArtIsWar/LEQControlPanel.git "$tools\LEQ"
+Invoke-WebRequest "https://raw.githubusercontent.com/jaakkopasanen/AutoEq/master/results/Rtings/Razer%20BlackShark%20V2/Razer%20BlackShark%20V2%20ParametricEQ.txt" -OutFile "$dest\EAC_Default.wav"
 
-cd "$tools\LEQ"
-
-Write-Host "[DGX] Building LEQ Control Panel..." -ForegroundColor Cyan
-
-dotnet build src/LEQControlPanel/LEQControlPanel.csproj -c Release
-
-Write-Host "[DGX] LEQ Control Panel compiled." -ForegroundColor Green
-
-Pause-Continue
+Write-Host "[DGX] HRIR installed." -ForegroundColor Green
 
 }
 
-function Diagnostics {
+function CreateConfig {
 
-Write-Host ""
-Write-Host "Detected Audio Devices:" -ForegroundColor Cyan
+$config="C:\Program Files\EqualizerAPO\config\config.txt"
 
-Get-PnpDevice -Class AudioEndpoint
+$content=@"
+# PRE HESUVI
+Include: DGXTune\library\pre.txt
 
-Pause-Continue
+# DO NOT REMOVE
+Include: HeSuVi\hesuvi.txt
+
+Include: DGXTune\library\eq.txt
+
+# POST
+Include: DGXTune\library\post.txt
+"@
+
+$content | Out-File $config
+
+Write-Host "[DGX] config.txt generated." -ForegroundColor Green
 
 }
 
-do {
+Banner
 
-Clear-Host
+Write-Host "1 Install DGX Audio Engine"
+Write-Host "2 Setup Workspace"
+Write-Host "3 Install HRIR"
+Write-Host "4 Generate config.txt"
+Write-Host "5 Exit"
 
-Show-Banner
-
-Write-Host "Select an option:" -ForegroundColor White
-Write-Host ""
-
-Write-Host "1  Fresh Start (remove previous audio tools)"
-Write-Host "2  Install DGX Audio Engine"
-Write-Host "3  Install LEQ Control Panel"
-Write-Host "4  Diagnostics"
-Write-Host "5  Exit"
-
-Write-Host ""
-
-$choice = Read-Host "Option"
+$choice=Read-Host "Option"
 
 switch ($choice) {
 
-"1" { FreshStart }
-"2" { InstallEngine }
-"3" { InstallLEQ }
-"4" { Diagnostics }
-"5" { break }
+"1"{InstallAudioEngine}
+"2"{CreateWorkspace}
+"3"{InstallHRIR}
+"4"{CreateConfig}
 
 }
-
-} while ($choice -ne "5")

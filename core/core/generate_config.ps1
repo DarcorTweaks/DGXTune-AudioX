@@ -1,17 +1,15 @@
 Write-Host ""
-Write-Host "Installing HRIR..." -ForegroundColor Cyan
+Write-Host "Generating Equalizer APO config..." -ForegroundColor Cyan
 
-$src = "$PSScriptRoot\..\hrir\EAC_Default.wav"
-$dst = "C:\Program Files\EqualizerAPO\config\HeSuVi\hrir\EAC_Default.wav"
+$config = "C:\Program Files\EqualizerAPO\config\config.txt"
 
-if(Test-Path $src){
+$content = @"
+# DGX Tune AudioX Configuration
 
-Copy-Item $src $dst -Force
+Include: HeSuVi\hesuvi.txt
 
-Write-Host "HRIR installed successfully." -ForegroundColor Green
+"@
 
-}else{
+Set-Content $config $content
 
-Write-Host "HRIR file missing." -ForegroundColor Red
-
-}
+Write-Host "config.txt generated." -ForegroundColor Green

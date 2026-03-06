@@ -14,10 +14,12 @@ if (!(Test-Path $temp)) {
 
 $url = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/installer.ps1"
 
-Write-Host "Downloading installer..." -ForegroundColor Yellow
+Write-Host "Descargando instalador..." -ForegroundColor Yellow
 
 Invoke-WebRequest $url -OutFile $installer
 
-Write-Host "Starting installer..." -ForegroundColor Green
+Write-Host "Iniciando instalador..." -ForegroundColor Green
 
-Start-Process powershell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$installer`""
+Start-Sleep 1
+
+powershell -ExecutionPolicy Bypass -File $installer

@@ -1,16 +1,20 @@
 Write-Host ""
 Write-Host "Installing Voicemeeter..." -ForegroundColor Cyan
 
-$tools = "$env:TEMP\DGXTools"
-
-New-Item -ItemType Directory $tools -Force | Out-Null
+$temp = "$env:TEMP\voicemeeter.exe"
 
 $url = "https://download.vb-audio.com/Download_CABLE/VoicemeeterSetup.exe"
 
-$file = "$tools\voicemeeter.exe"
+try{
 
-Invoke-WebRequest $url -OutFile $file
+Invoke-WebRequest $url -OutFile $temp
 
-Start-Process $file -Wait
+Start-Process $temp -Wait
 
 Write-Host "Voicemeeter installation finished." -ForegroundColor Green
+
+}catch{
+
+Write-Host "Failed to download Voicemeeter." -ForegroundColor Red
+
+}

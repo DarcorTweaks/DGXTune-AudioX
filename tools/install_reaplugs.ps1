@@ -1,20 +1,16 @@
 Write-Host ""
 Write-Host "Installing ReaPlugs..." -ForegroundColor Cyan
 
-$temp = "$env:TEMP\reaplugs.exe"
+$installer = "$PSScriptRoot\..\installers\reaplugs236_x64-install.exe"
 
-$url = "https://www.reaper.fm/files/2.x/reaplugs236-install.exe"
+if(Test-Path $installer){
 
-try {
+Start-Process $installer -Verb RunAs -Wait
 
-Invoke-WebRequest $url -OutFile $temp
+Write-Host "ReaPlugs installation finished." -ForegroundColor Green
 
-Start-Process $temp -Wait
+}else{
 
-Write-Host "ReaPlugs installed successfully." -ForegroundColor Green
-
-} catch {
-
-Write-Host "Failed to install ReaPlugs." -ForegroundColor Red
+Write-Host "ReaPlugs installer not found." -ForegroundColor Red
 
 }

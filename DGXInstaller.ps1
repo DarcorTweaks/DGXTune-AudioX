@@ -3,35 +3,44 @@
 # ====================================================================
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
-# 1. Detectar rutas
+# 1. Detectar rutas dinámicas
 $coreDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $repoRoot = Split-Path -Parent $coreDir
 $installersPath = "$repoRoot\installers"
 $toolsPath = "$repoRoot\tools"
 
-# Archivos
+# Nombres de archivos
 $fileAPO = "EqualizerAPO.exe"
 $fileVM = "VoicemeeterSetup.exe"
 $fileCable = "VBCableSetup_x64.exe"
 $filePeace = "Peace.exe"
 $leqPanelScript = "$toolsPath\DGX_LEQ_Panel.ps1"
+$falcoscScript = "$toolsPath\EnableLoudness.ps1"
 
 Write-Host "====================================================" -ForegroundColor Cyan
 Write-Host " INICIANDO INSTALACIÓN DEL MOTOR DGX AUDIOX..." -ForegroundColor White
 Write-Host "====================================================" -ForegroundColor Cyan
 Write-Host ""
 
-# Crear carpetas si no existen
+# Crear carpetas locales si no existen
 if (!(Test-Path $installersPath)) { New-Item -ItemType Directory -Path $installersPath | Out-Null }
 if (!(Test-Path $toolsPath)) { New-Item -ItemType Directory -Path $toolsPath | Out-Null }
 
-# Función de instalación
+# Función maestra de descarga e instalación
 function Install-DGXApp ($FileName, $SilentArgs, $IsExecutable) {
     $localFilePath = "$installersPath\$FileName"
     if (!(Test-Path $localFilePath)) {
-        Write-Host "      [!] Descargando $FileName..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/installers/$FileName" -OutFile $localFilePath
+        Write-Host "      [!] Descargando $FileName desde GitHub..." -ForegroundColor Yellow
+        # URL apuntando a tu repositorio
+        $url = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/installers/$FileName"
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $localFilePath -ErrorAction Stop
+        } catch {
+            Write-Host "      [ERROR] No se pudo descargar $FileName. Revisa que esté subido en GitHub." -ForegroundColor Red
+            return
+        }
     }
+    
     if ($IsExecutable) {
         Write-Host "      -> Instalando $FileName..." -ForegroundColor Gray
         Start-Process -FilePath $localFilePath -ArgumentList $SilentArgs -Wait -NoNewWindow
@@ -42,32 +51,52 @@ function Install-DGXApp ($FileName, $SilentArgs, $IsExecutable) {
 # ==========================================
 # FASE 1: INSTALACIÓN BASE
 # ==========================================
-Write-Host "[1/5] Preparando Equalizer APO..." -ForegroundColor Yellow
+Write-Host "[1/6] Preparando Equalizer APO..." -ForegroundColor Yellow
 Install-DGXApp -FileName $fileAPO -SilentArgs "/S" -IsExecutable $true
-
 Write-Host ""
-Write-Host "[2/5] Preparando Voicemeeter..." -ForegroundColor Yellow
+
+Write-Host "[2/6] Preparando Voicemeeter..." -ForegroundColor Yellow
 Install-DGXApp -FileName $fileVM -SilentArgs "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART" -IsExecutable $true
-
 Write-Host ""
-Write-Host "[3/5] Preparando VB-Cable..." -ForegroundColor Yellow
+
+Write-Host "[3/6] Preparando VB-Cable..." -ForegroundColor Yellow
 Install-DGXApp -FileName $fileCable -SilentArgs "-i -h" -IsExecutable $true
-
 Write-Host ""
-Write-Host "[4/5] Copiando Peace GUI..." -ForegroundColor Yellow
+
+Write-Host "[4/6] Copiando Peace GUI..." -ForegroundColor Yellow
 Install-DGXApp -FileName $filePeace -SilentArgs "" -IsExecutable $false
 $apoConfigPath = "C:\Program Files\EqualizerAPO\config"
 if (Test-Path $apoConfigPath) {
     Copy-Item -Path "$installersPath\$filePeace" -Destination "$apoConfigPath\Peace.exe" -Force
+    Write-Host "      [OK] Peace copiado al directorio raíz." -ForegroundColor Green
+}
+Write-Host ""
+
+# ==========================================
+# FASE 2: PREPARACIÓN DEL MOTOR LEQ
+# ==========================================
+Write-Host "[5/6] Descargando el Motor LEQ (EnableLoudness)..." -ForegroundColor Yellow
+if (!(Test-Path $falcoscScript)) {
+    # Aquí puedes usar tu propio enlace si subes el script de Falcosc a tu carpeta tools en GitHub
+    $urlLEQ = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/tools/EnableLoudness.ps1"
+    try {
+        Invoke-WebRequest -Uri $urlLEQ -OutFile $falcoscScript -ErrorAction Stop
+        Write-Host "      [OK] Motor LEQ descargado con éxito." -ForegroundColor Green
+    } catch {
+        Write-Host "      [!] Usando servidor de respaldo para el motor LEQ..." -ForegroundColor Yellow
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/Falcosc/enable-loudness-equalisation/main/EnableLoudness.ps1" -OutFile $falcoscScript
+        Write-Host "      [OK] Motor LEQ obtenido del servidor alterno." -ForegroundColor Green
+    }
+} else {
+    Write-Host "      [OK] Motor LEQ ya existe localmente." -ForegroundColor Green
 }
 
 # ==========================================
-# FASE 2: CREACIÓN AUTOMÁTICA DEL PANEL LEQ
+# FASE 3: CREACIÓN AUTOMÁTICA DEL PANEL LEQ
 # ==========================================
 Write-Host ""
-Write-Host "[5/5] Generando Interfaz Gráfica (LEQ Control Panel)..." -ForegroundColor DarkOrange
+Write-Host "[6/6] Generando Interfaz Gráfica (LEQ Control Panel)..." -ForegroundColor DarkOrange
 
-# Aquí guardamos TODO el código de la ventanita naranja dentro del instalador
 $panelCode = @'
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -126,10 +155,10 @@ $btnApply.Location = New-Object System.Drawing.Point(50, 150)
 
 $btnApply.add_Click({
     $val = $slider.Value
-    [System.Windows.Forms.MessageBox]::Show("Optimizando audio...", "DGXTune", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
+    [System.Windows.Forms.MessageBox]::Show("Optimizando audio... El proceso tomara unos segundos.", "DGXTune", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
     
     $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $leqScript = "$scriptDir\EnableLoudness.ps1" # Apunta al script de Falcosc en la misma carpeta
+    $leqScript = "$scriptDir\EnableLoudness.ps1"
     
     if (Test-Path $leqScript) {
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
@@ -143,17 +172,16 @@ $form.Controls.Add($btnApply)
 [void]$form.ShowDialog()
 '@
 
-# Escribimos el código de la interfaz en un archivo físico dentro de \tools
 Set-Content -Path $leqPanelScript -Value $panelCode -Encoding UTF8
 Write-Host "      [OK] Código de interfaz gráfica inyectado." -ForegroundColor Green
 
-# Crear Acceso Directo en el Escritorio
+# Acceso Directo limpio sin consola negra
 $WshShell = New-Object -comObject WScript.Shell
 $DesktopPath = [Environment]::GetFolderPath("Desktop")
 $Shortcut = $WshShell.CreateShortcut("$DesktopPath\DGX LEQ Panel.lnk")
 $Shortcut.TargetPath = "powershell.exe"
 $Shortcut.Arguments = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$leqPanelScript`""
-$Shortcut.Description = "DGXTune - Control de Pasos Warzone"
+$Shortcut.Description = "DGXTune - Control de Pasos"
 $Shortcut.IconLocation = "powershell.exe,0"
 $Shortcut.Save()
 Write-Host "      [OK] Acceso directo creado en el escritorio." -ForegroundColor Green

@@ -1,5 +1,5 @@
 # ====================================================================
-# DGX TUNE AUDIOX - CORE INSTALLER & AIO LEQ INTEGRATION
+# DGX TUNE AUDIOX - CORE INSTALLER & AIO LEQ INTEGRATION (FINAL)
 # ====================================================================
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -31,7 +31,6 @@ function Install-DGXApp ($FileName, $SilentArgs, $IsExecutable) {
     $localFilePath = "$installersPath\$FileName"
     if (!(Test-Path $localFilePath)) {
         Write-Host "      [!] Descargando $FileName desde GitHub..." -ForegroundColor Yellow
-        # URL apuntando a tu repositorio
         $url = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/installers/$FileName"
         try {
             Invoke-WebRequest -Uri $url -OutFile $localFilePath -ErrorAction Stop
@@ -77,7 +76,6 @@ Write-Host ""
 # ==========================================
 Write-Host "[5/6] Descargando el Motor LEQ (EnableLoudness)..." -ForegroundColor Yellow
 if (!(Test-Path $falcoscScript)) {
-    # Aquí puedes usar tu propio enlace si subes el script de Falcosc a tu carpeta tools en GitHub
     $urlLEQ = "https://raw.githubusercontent.com/DarcorTweaks/DGXTune-AudioX/main/tools/EnableLoudness.ps1"
     try {
         Invoke-WebRequest -Uri $urlLEQ -OutFile $falcoscScript -ErrorAction Stop
@@ -97,7 +95,13 @@ if (!(Test-Path $falcoscScript)) {
 Write-Host ""
 Write-Host "[6/6] Generando Interfaz Gráfica (LEQ Control Panel)..." -ForegroundColor DarkOrange
 
+# Aquí inyectamos el código del panel 100% blindado
 $panelCode = @'
+$currentDir = $PSScriptRoot
+if ([string]::IsNullOrEmpty($currentDir)) {
+    $currentDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
@@ -145,7 +149,7 @@ $slider.add_Scroll({
 $form.Controls.Add($slider)
 
 $btnApply = New-Object System.Windows.Forms.Button
-$btnApply.Text = "ACTIVAR COMPRESIÓN"
+$btnApply.Text = "ACTIVAR COMPRESIÓN DE PASOS"
 $btnApply.BackColor = [System.Drawing.Color]::DarkOrange
 $btnApply.ForeColor = [System.Drawing.Color]::Black
 $btnApply.FlatStyle = "Flat"
@@ -155,16 +159,23 @@ $btnApply.Location = New-Object System.Drawing.Point(50, 150)
 
 $btnApply.add_Click({
     $val = $slider.Value
-    [System.Windows.Forms.MessageBox]::Show("Optimizando audio... El proceso tomara unos segundos.", "DGXTune", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
+    [System.Windows.Forms.MessageBox]::Show("Activando LEQ con Release Time = $val. Optimizando audio para Warzone...", "DarcorTweaks", 0, [System.Windows.Forms.MessageBoxIcon]::Information)
     
-    $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-    $leqScript = "$scriptDir\EnableLoudness.ps1"
+    $path1 = "$currentDir\tools\EnableLoudness.ps1"
+    $path2 = "$currentDir\EnableLoudness.ps1"
+    $leqScript = ""
+
+    if (Test-Path $path1) {
+        $leqScript = $path1
+    } elseif (Test-Path $path2) {
+        $leqScript = $path2
+    }
     
-    if (Test-Path $leqScript) {
+    if ($leqScript -ne "") {
         Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
         . $leqScript -releaseTime $val
     } else {
-        [System.Windows.Forms.MessageBox]::Show("Falta EnableLoudness.ps1 en la carpeta tools.", "Error", 0, [System.Windows.Forms.MessageBoxIcon]::Error)
+        [System.Windows.Forms.MessageBox]::Show("Error: No se encontró EnableLoudness.ps1 ni en la raíz ni en la carpeta tools.", "Error de Ruta", 0, [System.Windows.Forms.MessageBoxIcon]::Error)
     }
 })
 $form.Controls.Add($btnApply)
